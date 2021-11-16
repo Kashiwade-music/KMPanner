@@ -112,7 +112,7 @@ void CyclingPannerAudioProcessorEditor::resized() {
   rotatePanLabel.setBounds(125, 25, 550, 60);
   angleSlider.setBounds(125, 75, 550, 60);
   angleSlider_TextBox.setBounds(400 - 35, 145, 80, 60);
-  rotatePanBypass.setBounds(125, 400, 550, 60);
+  rotatePanBypass.setBounds(77, 90, 30, 30);
 
   splitPanAngleDiffSlider.setBounds(125, 200, 550, 60);
   splitPanCenterPosSlider.setBounds(125, 300, 550, 60);

@@ -9,7 +9,7 @@
 namespace BinaryData
 {
     extern const char*   poweroff_png;
-    const int            poweroff_pngSize = 4336;
+    const int            poweroff_pngSize = 3719;
 
     extern const char*   poweron_png;
     const int            poweron_pngSize = 4305;
