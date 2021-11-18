@@ -9,17 +9,17 @@
 #include <windows.h>
 
 VS_VERSION_INFO VERSIONINFO
-FILEVERSION  1,0,1,0
+FILEVERSION  1,0,0,0
 BEGIN
   BLOCK "StringFileInfo"
   BEGIN
     BLOCK "040904E4"
     BEGIN
       VALUE "CompanyName",  "Kashiwade Plugins\0"
-      VALUE "FileDescription",  "Cycling Panner\0"
-      VALUE "FileVersion",  "1.0.1\0"
-      VALUE "ProductName",  "Cycling Panner\0"
-      VALUE "ProductVersion",  "1.0.1\0"
+      VALUE "FileDescription",  "KMPanner\0"
+      VALUE "FileVersion",  "1.0.0\0"
+      VALUE "ProductName",  "KMPanner\0"
+      VALUE "ProductVersion",  "1.0.0\0"
     END
   END
 
