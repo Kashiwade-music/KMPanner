@@ -61,10 +61,12 @@ CyclingPannerAudioProcessor::CyclingPannerAudioProcessor()
                                                          "Bypass", false),
               std::make_unique<juce::AudioParameterFloat>(
                   "splitpanlangle", "Split Pan L Angle (Read only)",
-                  juce::NormalisableRange<float>(-100.0f, 100.0f), -100.0f),
+                  juce::NormalisableRange<float>(-100.0f, 100.0f), -100.0f,
+                  juce::String(), juce::AudioProcessorParameter::analysisMeter),
               std::make_unique<juce::AudioParameterFloat>(
                   "splitpanrangle", "Split Pan R Angle (Read only)",
-                  juce::NormalisableRange<float>(-100.0f, 100.0f), 100.0f),
+                  juce::NormalisableRange<float>(-100.0f, 100.0f), 100.0f,
+                  juce::String(), juce::AudioProcessorParameter::analysisMeter),
           }) {
 
   angle = parameters.getRawParameterValue("angle");

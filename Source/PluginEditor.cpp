@@ -112,6 +112,15 @@ CyclingPannerAudioProcessorEditor::CyclingPannerAudioProcessorEditor(
   splitPanLabel.setJustificationType(juce::Justification::centred);
   addAndMakeVisible(splitPanLabel);
 
+  splitPanDiffLabel.setFont(KanitMini);
+  splitPanDiffLabel.setJustificationType(juce::Justification::centred);
+  addAndMakeVisible(splitPanDiffLabel);
+
+  splitPanCenterLabel.setFont(KanitMini);
+  splitPanCenterLabel.setJustificationType(juce::Justification::centred);
+  addAndMakeVisible(splitPanCenterLabel);
+
+  splitPanAngleDiffSlider.addListener(&CPSListener);
   splitPanAngleDiffSlider.setDoubleClickReturnValue(true, 0);
   splitPanAngleDiffSlider.setTextBoxStyle(
       juce::Slider::TextEntryBoxPosition::NoTextBox, false, 0, 0);
@@ -126,12 +135,6 @@ CyclingPannerAudioProcessorEditor::CyclingPannerAudioProcessorEditor(
   splitPanAngleDiffSlider_TextBox.setSize(70, 30);
   addAndMakeVisible(splitPanAngleDiffSlider_TextBox);
 
-  splitPanCenterPosSlider.setDoubleClickReturnValue(true, 0);
-  splitPanCenterPosSlider.setTextBoxStyle(
-      juce::Slider::TextEntryBoxPosition::NoTextBox, false, 0, 0);
-  splitPanCenterPosSlider.setLookAndFeel(&sliderLookAndFeel);
-  addAndMakeVisible(splitPanCenterPosSlider);
-
   splitPanCenterPosSlider_TextBox.setSliderStyle(
       juce::Slider::SliderStyle::LinearBar);
   splitPanCenterPosSlider_TextBox.setSliderSnapsToMousePosition(false);
@@ -142,11 +145,29 @@ CyclingPannerAudioProcessorEditor::CyclingPannerAudioProcessorEditor(
 
   splitPanSlider_L.setTextBoxStyle(
       juce::Slider::TextEntryBoxPosition::NoTextBox, false, 0, 0);
+  splitPanSlider_L.setLookAndFeel(&splitLSliderLookAndFeel);
   addAndMakeVisible(splitPanSlider_L);
 
   splitPanSlider_R.setTextBoxStyle(
       juce::Slider::TextEntryBoxPosition::NoTextBox, false, 0, 0);
+  splitPanSlider_R.setLookAndFeel(&splitRSliderLookAndFeel);
   addAndMakeVisible(splitPanSlider_R);
+
+  splitPanSlider_L_Mask.setTextBoxStyle(
+      juce::Slider::TextEntryBoxPosition::NoTextBox, false, 0, 0);
+  splitPanSlider_L_Mask.setLookAndFeel(&plus_Mask);
+  addAndMakeVisible(splitPanSlider_L_Mask);
+
+  splitPanSlider_R_Mask.setTextBoxStyle(
+      juce::Slider::TextEntryBoxPosition::NoTextBox, false, 0, 0);
+  splitPanSlider_R_Mask.setLookAndFeel(&minus_Mask);
+  addAndMakeVisible(splitPanSlider_R_Mask);
+
+  splitPanCenterPosSlider.setDoubleClickReturnValue(true, 0);
+  splitPanCenterPosSlider.setTextBoxStyle(
+      juce::Slider::TextEntryBoxPosition::NoTextBox, false, 0, 0);
+  splitPanCenterPosSlider.setLookAndFeel(&centerPosSliderLookAndFeel);
+  addAndMakeVisible(splitPanCenterPosSlider);
 
   splitPanRule.setJustificationType(
       juce::Justification::Justification::centred);
@@ -184,6 +205,10 @@ CyclingPannerAudioProcessorEditor::CyclingPannerAudioProcessorEditor(
       new SliderAttachment(valueTreeState, "splitpanlangle", splitPanSlider_L));
   splitPanSliderAttachment_R.reset(
       new SliderAttachment(valueTreeState, "splitpanrangle", splitPanSlider_R));
+  splitPanSliderAttachment_L_Mask.reset(new SliderAttachment(
+      valueTreeState, "splitpanlangle", splitPanSlider_L_Mask));
+  splitPanSliderAttachment_R_Mask.reset(new SliderAttachment(
+      valueTreeState, "splitpanrangle", splitPanSlider_R_Mask));
   splitPanBypassAttachment.reset(
       new ButtonAttachment(valueTreeState, "issplitpanbypass", splitPanBypass));
   splitPanRuleAttachment.reset(
@@ -191,10 +216,21 @@ CyclingPannerAudioProcessorEditor::CyclingPannerAudioProcessorEditor(
 
   // --------------------------------------------------------------
 
-  setSize(800, 800);
+  setSize(800, 790);
 }
 
 CyclingPannerAudioProcessorEditor::~CyclingPannerAudioProcessorEditor() {}
+//==============================================================================
+
+void CPSListener::sliderValueChanged(juce::Slider* slider) {
+  if (0 <= *editor.audioProcessor.splitPanAngleDiff) {
+    editor.splitPanSlider_L_Mask.setLookAndFeel(&editor.plus_Mask);
+    editor.splitPanSlider_R_Mask.setLookAndFeel(&editor.minus_Mask);
+  } else {
+    editor.splitPanSlider_L_Mask.setLookAndFeel(&editor.minus_Mask);
+    editor.splitPanSlider_R_Mask.setLookAndFeel(&editor.plus_Mask);
+  }
+}
 
 //==============================================================================
 void SliderLookAndFeel::drawLinearSlider(juce::Graphics& g, int x, int y,
@@ -221,6 +257,79 @@ void SliderLookAndFeel::drawLinearSlider(juce::Graphics& g, int x, int y,
   g.fillRect((float)sliderPos - 6.f + 3.f, (float)height / 2 + y - 25.f + 3.f,
              6.f,
              44.f);  // thumb
+}
+
+void CenterPosSliderLookAndFeel::drawLinearSlider(
+    juce::Graphics& g, int x, int y, int width, int height, float sliderPos,
+    float minSliderPos, float maxSliderPos,
+    const juce::Slider::SliderStyle style, juce::Slider&) {
+  g.setColour(juce::Colour::Colour(142, 149, 166));
+  g.fillRect((float)sliderPos - 6.f, (float)height / 2 + y - 25.f, 12.f,
+             50.f);  // thumb
+  g.setColour(juce::Colour::Colour(234, 235, 238));
+  g.fillRect((float)sliderPos - 6.f + 3.f, (float)height / 2 + y - 25.f + 3.f,
+             6.f,
+             44.f);  // thumb
+}
+
+void SplitLSliderLookAndFeel::drawLinearSlider(
+    juce::Graphics& g, int x, int y, int width, int height, float sliderPos,
+    float minSliderPos, float maxSliderPos,
+    const juce::Slider::SliderStyle style, juce::Slider&) {
+  g.setColour(juce::Colour::Colour(6, 5, 20));
+  g.fillRect((float)x, (float)height / 2 + y - 7.f, (float)width,
+             14.f);                      // background
+  if ((sliderPos - x) >= (width / 2)) {  // プラス方向
+    g.setColour(juce::Colour::Colour(225, 129, 12));
+    g.fillRect((float)width / 2 + x, (float)height / 2 + y - 7.f,
+               (float)sliderPos - x - (width / 2),
+               14.f);  // fill
+  } else {
+    g.setColour(juce::Colour::Colour(12, 134, 225));
+    g.fillRect((float)sliderPos, (float)height / 2 + y - 7.f,
+               (float)((width / 2 + x) - sliderPos), 14.f);
+  }
+}
+
+void SplitRSliderLookAndFeel::drawLinearSlider(
+    juce::Graphics& g, int x, int y, int width, int height, float sliderPos,
+    float minSliderPos, float maxSliderPos,
+    const juce::Slider::SliderStyle style, juce::Slider&) {
+  if ((sliderPos - x) >= (width / 2)) {  // プラス方向
+    g.setColour(juce::Colour::Colour(12, 134, 225));
+    g.fillRect((float)width / 2 + x, (float)height / 2 + y - 7.f,
+               (float)sliderPos - x - (width / 2),
+               14.f);  // fill
+  } else {
+    g.setColour(juce::Colour::Colour(225, 129, 12));
+    g.fillRect((float)sliderPos, (float)height / 2 + y - 7.f,
+               (float)((width / 2 + x) - sliderPos), 14.f);
+  }
+}
+
+void Plus_Mask::drawLinearSlider(juce::Graphics& g, int x, int y, int width,
+                                 int height, float sliderPos,
+                                 float minSliderPos, float maxSliderPos,
+                                 const juce::Slider::SliderStyle style,
+                                 juce::Slider&) {
+  g.setColour(juce::Colour::Colour(6, 5, 20));
+  if ((sliderPos - x) >= (width / 2)) {  // プラス方向
+    g.fillRect((float)width / 2 + x, (float)height / 2 + y - 7.f,
+               (float)sliderPos - x - (width / 2),
+               14.f);  // fill
+  }
+}
+
+void Minus_Mask::drawLinearSlider(juce::Graphics& g, int x, int y, int width,
+                                  int height, float sliderPos,
+                                  float minSliderPos, float maxSliderPos,
+                                  const juce::Slider::SliderStyle style,
+                                  juce::Slider&) {
+  g.setColour(juce::Colour::Colour(6, 5, 20));
+  if (!((sliderPos - x) >= (width / 2))) {
+    g.fillRect((float)sliderPos, (float)height / 2 + y - 7.f,
+               (float)((width / 2 + x) - sliderPos), 14.f);
+  }
 }
 
 void ComboBoxLookAndFeel::drawComboBox(juce::Graphics& g, int width, int height,
@@ -259,29 +368,82 @@ void CyclingPannerAudioProcessorEditor::paint(juce::Graphics& g) {
   // solid colour)
   g.fillAll(juce::Colour::Colour(23, 23, 32));
   g.setColour(juce::Colour::Colour(35, 35, 46));
-  g.fillRoundedRectangle(50.f, 30.f, 700.f, 160.f, 10.f);
-  g.fillRoundedRectangle(50.f, 220.f, 700.f, 160.f, 10.f);
-  g.fillRoundedRectangle(50.f, 410.f, 700.f, 220.f, 10.f);
+  g.fillRoundedRectangle(rotatePanAria.toFloat(), 10.f);
+  g.fillRoundedRectangle(panAria.toFloat(), 10.f);
+  g.fillRoundedRectangle(splitPanAria.toFloat(), 10.f);
 }
 
 void CyclingPannerAudioProcessorEditor::resized() {
   // This is generally where you'll want to lay out the positions of any
   // subcomponents in your editor..
-  rotatePanLabel.setBounds(125, 25, 550, 60);
-  angleSlider.setBounds(125, 75, 550, 60);
-  angleSlider_TextBox.setBounds(400 - 35, 145, 70, 30);
-  rotatePanBypass.setBounds(81, 92, 25, 25);
+  rotatePanLabel.setSize(rotatePanAria.getWidth(), 50);
+  rotatePanLabel.setCentrePosition(rotatePanAria.getCentreX(),
+                                   rotatePanAria.getY() + 20);
+  angleSlider.setSize(550, 60);
+  angleSlider.setCentrePosition(rotatePanAria.getCentreX(),
+                                rotatePanAria.getCentreY());
+  angleSlider_TextBox.setSize(70, 20);
+  angleSlider_TextBox.setCentrePosition(rotatePanAria.getCentreX(),
+                                        rotatePanAria.getBottom() - 22);
+  rotatePanBypass.setSize(25, 25);
+  rotatePanBypass.setCentrePosition(93, rotatePanAria.getCentreY() - 2);
 
-  panLabel.setBounds(125, 215, 550, 60);
-  panSlider.setBounds(125, 265, 550, 60);
-  panSlider_TextBox.setBounds(400 - 35, 335, 70, 30);
-  panBypass.setBounds(81, 282, 25, 25);
-  panRule.setBounds(672, 282, 70, 25);
+  // --------------------------------------------------------------
 
-  splitPanLabel.setBounds(125, 405, 550, 60);
-  splitPanAngleDiffSlider.setBounds(125, 455, 550, 60);
-  splitPanAngleDiffSlider_TextBox.setBounds(400 - 35, 525, 70, 30);
-  splitPanBypass.setBounds(81, 472, 25, 25);
-  splitPanRule.setBounds(672, 472, 70, 25);
-  splitPanCenterPosSlider.setBounds(125, 550, 550, 60);
+  panLabel.setSize(panAria.getWidth(), 50);
+  panLabel.setCentrePosition(panAria.getCentreX(), panAria.getY() + 20);
+  panSlider.setSize(550, 60);
+  panSlider.setCentrePosition(panAria.getCentreX(), panAria.getCentreY());
+  panSlider_TextBox.setSize(70, 20);
+  panSlider_TextBox.setCentrePosition(panAria.getCentreX(),
+                                      panAria.getBottom() - 22);
+  panBypass.setSize(25, 25);
+  panBypass.setCentrePosition(93, panAria.getCentreY() - 2);
+  panRule.setSize(70, 25);
+  panRule.setCentrePosition(panAria.getRight() - 44, panAria.getCentreY());
+
+  // --------------------------------------------------------------
+
+  splitPanLabel.setSize(splitPanAria.getWidth(), 50);
+  splitPanLabel.setCentrePosition(splitPanAria.getCentreX(),
+                                  splitPanAria.getY() + 20);
+  splitPanBypass.setSize(25, 25);
+  splitPanBypass.setCentrePosition(93, splitPanAria.getCentreY() - 2);
+  splitPanRule.setSize(70, 25);
+  splitPanRule.setCentrePosition(splitPanAria.getRight() - 44,
+                                 splitPanAria.getCentreY());
+
+  diffAria.setY(splitPanAria.getY() + 25);
+  splitPanDiffLabel.setSize(diffAria.getWidth(), 50);
+  splitPanDiffLabel.setCentrePosition(diffAria.getCentreX(),
+                                      diffAria.getY() + 30);
+  splitPanAngleDiffSlider.setSize(550, 60);
+  splitPanAngleDiffSlider.setCentrePosition(diffAria.getCentreX(),
+                                            diffAria.getCentreY());
+  splitPanAngleDiffSlider_TextBox.setSize(70, 20);
+  splitPanAngleDiffSlider_TextBox.setCentrePosition(diffAria.getCentreX(),
+                                                    diffAria.getBottom() - 28);
+
+  centerAria.setY(splitPanAria.getBottom() - 10 - 150);
+  splitPanCenterLabel.setSize(centerAria.getWidth(), 50);
+  splitPanCenterLabel.setCentrePosition(centerAria.getCentreX(),
+                                        centerAria.getY() + 30);
+  splitPanSlider_L.setSize(550, 60);
+  splitPanSlider_L.setCentrePosition(centerAria.getCentreX(),
+                                     centerAria.getCentreY());
+  splitPanSlider_R.setSize(550, 60);
+  splitPanSlider_R.setCentrePosition(centerAria.getCentreX(),
+                                     centerAria.getCentreY());
+  splitPanSlider_L_Mask.setSize(550, 60);
+  splitPanSlider_L_Mask.setCentrePosition(centerAria.getCentreX(),
+                                          centerAria.getCentreY());
+  splitPanSlider_R_Mask.setSize(550, 60);
+  splitPanSlider_R_Mask.setCentrePosition(centerAria.getCentreX(),
+                                          centerAria.getCentreY());
+  splitPanCenterPosSlider.setSize(550, 60);
+  splitPanCenterPosSlider.setCentrePosition(centerAria.getCentreX(),
+                                            centerAria.getCentreY());
+  splitPanCenterPosSlider_TextBox.setSize(70, 20);
+  splitPanCenterPosSlider_TextBox.setCentrePosition(
+      centerAria.getCentreX(), centerAria.getBottom() - 28);
 }
